@@ -89,7 +89,7 @@ export default function ExperiencePage() {
   return (
     <main className="min-h-screen bg-background">
       <Header />
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-6">
         <button
           onClick={() => router.back()}
           className="flex items-center gap-2 text-secondary mb-6 hover:text-primary"
@@ -98,9 +98,9 @@ export default function ExperiencePage() {
           <span>Details</span>
         </button>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2">
-            <div className="relative h-96 w-full rounded-lg overflow-hidden  mb-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 sticky top-20">
+            <div className="relative h-64 w-full rounded-lg overflow-hidden mb-4">
               {useNextImage ? (
                 <Image src={imageSrc} alt={experience.title} fill className="object-cover" />
               ) : (
@@ -108,19 +108,19 @@ export default function ExperiencePage() {
               )}
             </div>
 
-            <div className="p-4 rounded-lg mb-6">
-              <h2 className="text-2xl font-bold text-secondary mb-2">{experience.title}</h2>
-              <p className="text-secondary">{experience.description}</p>
+            <div className="p-3 rounded-lg mb-4">
+              <h2 className="text-xl font-bold text-secondary mb-1">{experience.title}</h2>
+              <p className="text-secondary text-sm">{experience.description}</p>
             </div>
 
-            <div className="mb-8">
-              <h3 className="text-xl font-bold mb-4">Choose date</h3>
+            <div className="mb-4">
+              <h3 className="text-lg font-bold mb-2">Choose date</h3>
               <div className="flex gap-2 flex-wrap">
                 {experience.dates.map((date) => (
                   <button
                     key={date}
                     onClick={() => setSelectedDate(date)}
-                    className={`px-4 py-2 rounded-lg font-semibold transition ${
+                    className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition ${
                       selectedDate === date
                         ? "bg-primary text-secondary"
                         : "border-2 border-gray-200 text-foreground hover:bg-gray-300"
@@ -132,15 +132,15 @@ export default function ExperiencePage() {
               </div>
             </div>
 
-            <div className="mb-8">
-              <h3 className="text-xl font-bold mb-4">Choose time</h3>
+            <div className="mb-4">
+              <h3 className="text-lg font-bold mb-2">Choose time</h3>
               <div className="flex gap-2 flex-wrap">
                 {timesForSelectedDate.map((slot) => (
                   <button
                     key={slot.time}
                     onClick={() => slot.available > 0 && setSelectedTime(slot.time)}
                     disabled={slot.available === 0}
-                    className={`px-4 py-2 rounded-lg font-semibold transition ${
+                    className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition ${
                       selectedTime === slot.time
                         ? "bg-accent text-white"
                         : slot.available === 0
@@ -162,21 +162,21 @@ export default function ExperiencePage() {
               </div>
             </div>
 
-            <div className="mb-8">
-              <h3 className="text-xl font-bold mb-4">About</h3>
-              <p className="text-foreground bg-gray-100 p-4 rounded-lg">{experience.about}</p>
+            <div className="mb-4">
+              <h3 className="text-lg font-bold mb-2">About</h3>
+              <p className="text-foreground bg-gray-100 p-3 rounded-lg text-sm">{experience.about}</p>
             </div>
           </div>
 
           <div className="lg:col-span-1">
-            <div className="bg-gray-100 border border-border rounded-lg p-6 sticky top-8">
-              <div className="mb-6">
-                <p className="text-sm text-muted mb-1">Starts at</p>
-                <p className="text-3xl font-bold text-foreground">₹{experience.price}</p>
+            <div className="bg-gray-100 border border-border rounded-lg p-4 sticky top-20">
+              <div className="mb-4">
+                <p className="text-xs text-muted mb-1">Starts at</p>
+                <p className="text-2xl font-bold text-foreground">₹{experience.price}</p>
               </div>
 
-              <div className="mb-6">
-                <p className="text-sm text-muted mb-2">Quantity</p>
+              <div className="mb-4">
+                <p className="text-sm text-muted mb-1">Quantity</p>
                 <div className="flex items-center gap-4">
                   <button
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
@@ -194,7 +194,7 @@ export default function ExperiencePage() {
                 </div>
               </div>
 
-              <div className="space-y-2 mb-6 pb-6 border-b border-border">
+              <div className="space-y-2 mb-4 pb-4 border-b border-border text-sm">
                 <div className="flex justify-between">
                   <span className="text-muted">Subtotal</span>
                   <span className="font-semibold">₹{experience.price * quantity}</span>
@@ -205,16 +205,16 @@ export default function ExperiencePage() {
                 </div>
               </div>
 
-              <div className="flex justify-between mb-6">
-                <span className="font-bold text-lg">Total</span>
-                <span className="font-bold text-lg">
+              <div className="flex justify-between mb-4">
+                <span className="font-bold">Total</span>
+                <span className="font-bold">
                   ₹{Math.round(experience.price * quantity + experience.price * quantity * 0.06)}
                 </span>
               </div>
 
               <button
                 onClick={handleBooking}
-                className="w-full bg-gray-300 text-foreground py-3 rounded-lg font-semibold hover:bg-gray-400 transition"
+                className="w-full bg-gray-300 text-foreground py-2.5 rounded-lg font-semibold hover:bg-gray-400 transition text-sm"
               >
                 Confirm
               </button>
