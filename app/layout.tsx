@@ -2,6 +2,7 @@ import type React from "react"
 import type { Metadata } from "next"
 import { Geist } from "next/font/google"
 import "./globals.css"
+import RouteLoader from "@/components/route-loader"
 
 const geistSans = Geist({ subsets: ["latin"] })
 
@@ -17,7 +18,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${geistSans.className} bg-background text-foreground`}>{children}</body>
+      <body className={`${geistSans.className} bg-background text-foreground`}>
+        <RouteLoader />
+        {children}
+      </body>
     </html>
   )
 }
