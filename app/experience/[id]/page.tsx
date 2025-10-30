@@ -27,6 +27,7 @@ export default function ExperiencePage() {
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
   const [selectedTime, setSelectedTime] = useState<string | null>(null)
   const [quantity, setQuantity] = useState(1)
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
 
   useEffect(() => {
     const fetchExperience = async () => {
@@ -43,14 +44,28 @@ export default function ExperiencePage() {
         setLoading(false)
       }
     }
+    const checkAuth = async () => {
+      try {
+        const res = await fetch("/api/auth/me", { cache: "no-store" })
+        const data = await res.json()
+        setIsLoggedIn(!!data?.user)
+      } catch {
+        setIsLoggedIn(false)
+      }
+    }
 
     fetchExperience()
+    checkAuth()
   }, [id])
 
   if (loading) return <div className="text-center py-8">Loading...</div>
   if (!experience) return <div className="text-center py-8">Experience not found</div>
 
   const handleBooking = () => {
+    if (!isLoggedIn) {
+      router.push("/sign-in")
+      return
+    }
     if (!selectedTime) {
       alert("Please select a time slot")
       return

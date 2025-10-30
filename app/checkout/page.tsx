@@ -20,8 +20,8 @@ export default function CheckoutPage() {
   const quantity = Number.parseInt(searchParams.get("quantity") || "1")
 
   const [experience, setExperience] = useState<Experience | null>(null)
-  const [fullName, setFullName] = useState("")
-  const [email, setEmail] = useState("")
+  const [userName, setUserName] = useState("")
+  const [userEmail, setUserEmail] = useState("")
   const [promoCode, setPromoCode] = useState("")
   const [discount, setDiscount] = useState(0)
   const [agreed, setAgreed] = useState(false)
@@ -40,7 +40,23 @@ export default function CheckoutPage() {
         console.error("Failed to fetch experience")
       }
     }
+    const fetchMe = async () => {
+      try {
+        const res = await fetch("/api/auth/me", { cache: "no-store" })
+        const data = await res.json()
+        if (data?.user) {
+          setUserName(data.user.name)
+          setUserEmail(data.user.email)
+        } else {
+          router.push("/sign-in")
+        }
+      } catch {
+        router.push("/sign-in")
+      }
+    }
+
     fetchExperience()
+    fetchMe()
   }, [experienceId])
 
   if (!experience) {
@@ -71,7 +87,7 @@ export default function CheckoutPage() {
   }
 
   const handlePayment = async () => {
-    if (!fullName || !email || !agreed) {
+    if (!agreed) {
       setError("Please fill all fields and agree to terms")
       return
     }
@@ -86,8 +102,6 @@ export default function CheckoutPage() {
           date,
           time,
           quantity,
-          fullName,
-          email,
           subtotal,
           taxes,
           discount,
@@ -123,26 +137,25 @@ export default function CheckoutPage() {
             <div className="bg-white border border-border rounded-lg p-6">
               {error && <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg text-sm">{error}</div>}
 
-              <div className="mb-6">
-                <label className="block text-sm font-semibold mb-2">Full name</label>
-                <input
-                  type="text"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  placeholder="John Doe"
-                  className="w-full px-4 py-2 border border-border rounded-lg bg-gray-100"
-                />
-              </div>
-
-              <div className="mb-6">
-                <label className="block text-sm font-semibold mb-2">Email</label>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="test@test.com"
-                  className="w-full px-4 py-2 border border-border rounded-lg bg-gray-100"
-                />
+              <div className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold mb-2">Name</label>
+                  <input
+                    type="text"
+                    value={userName}
+                    readOnly
+                    className="w-full px-4 py-2 border border-border rounded-lg bg-gray-100"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold mb-2">Email</label>
+                  <input
+                    type="email"
+                    value={userEmail}
+                    readOnly
+                    className="w-full px-4 py-2 border border-border rounded-lg bg-gray-100"
+                  />
+                </div>
               </div>
 
               <div className="mb-6">

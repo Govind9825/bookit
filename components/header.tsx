@@ -32,7 +32,8 @@ export default function Header() {
     setLoading(true)
     try {
       await fetch("/api/auth/logout", { method: "POST" })
-      router.refresh()
+      setMe(null)
+      router.push("/")
     } finally {
       setLoading(false)
     }
@@ -50,7 +51,7 @@ export default function Header() {
         <input
           type="text"
           placeholder="Search experiences"
-          className="flex-1 mx-8 px-4 py-2 border border-border rounded-lg bg-gray-50"
+          className="w-64 mx-8 px-4 py-2 border border-border rounded-lg bg-gray-50"
         />
         <div className="flex items-center gap-4">
           <button className="bg-primary text-secondary px-6 py-2 rounded-lg font-semibold hover:bg-primary-dark transition">
@@ -58,6 +59,9 @@ export default function Header() {
           </button>
           {me ? (
             <div className="flex items-center gap-3">
+              <Link href="/my-bookings" className="px-4 py-2 border rounded hover:bg-gray-50">
+                My bookings
+              </Link>
               <span className="text-sm">Hi, {me.name}</span>
               <button
                 onClick={onLogout}
@@ -71,9 +75,6 @@ export default function Header() {
             <div className="flex items-center gap-3">
               <Link href="/sign-in" className="px-4 py-2 border rounded hover:bg-gray-50">
                 Sign in
-              </Link>
-              <Link href="/sign-up" className="px-4 py-2 bg-black text-white rounded">
-                Sign up
               </Link>
             </div>
           )}
