@@ -94,28 +94,90 @@ export default function CheckoutPage() {
 
     setLoading(true)
     try {
-      const res = await fetch("/api/bookings", {
+      // 1) Create Razorpay order (amount in paise)
+      const orderRes = await fetch("/api/payments/razorpay/order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          experienceId,
-          date,
-          time,
-          quantity,
-          subtotal,
-          taxes,
-          discount,
-        }),
+        body: JSON.stringify({ amount: total * 100, currency: "INR", receipt: `exp_${String(experienceId).slice(0,10)}_${Date.now().toString().slice(-6)}` }),
       })
-      const data = await res.json()
-      if (data.success) {
-        router.push(`/result?bookingId=${data.data.id}&experience=${experience.title}&date=${date}&time=${time}`)
-      } else {
-        setError(data.error || "Booking failed")
+      const orderData = await orderRes.json()
+      if (!orderRes.ok || !orderData.success) {
+        setError(orderData.error || "Payment initialization failed")
+        setLoading(false)
+        return
       }
-    } catch {
-      setError("Failed to complete booking")
-    } finally {
+
+      // 2) Load Razorpay script if not present
+      if (!(window as any).Razorpay) {
+        await new Promise<void>((resolve, reject) => {
+          const s = document.createElement("script")
+          s.src = "https://checkout.razorpay.com/v1/checkout.js"
+          s.onload = () => resolve()
+          s.onerror = () => reject(new Error("Razorpay SDK failed to load"))
+          document.body.appendChild(s)
+        })
+      }
+
+      // 3) Open Razorpay checkout
+      const rzp = new (window as any).Razorpay({
+        key: orderData.data.keyId,
+        amount: orderData.data.amount,
+        currency: orderData.data.currency,
+        name: "BookIt",
+        description: experience.title,
+        order_id: orderData.data.orderId,
+        prefill: { name: userName, email: userEmail },
+        theme: { color: "#fcd34d" },
+        handler: async (resp: any) => {
+          try {
+            // 4) Verify signature server-side
+            const verifyRes = await fetch("/api/payments/razorpay/verify", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(resp),
+            })
+            const verifyData = await verifyRes.json()
+            if (!verifyRes.ok || !verifyData.success) {
+              setError("Payment verification failed")
+              setLoading(false)
+              return
+            }
+
+            // 5) Create booking after successful payment
+            const res = await fetch("/api/bookings", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                experienceId,
+                date,
+                time,
+                quantity,
+                subtotal,
+                taxes,
+                discount,
+              }),
+            })
+            const data = await res.json()
+            if (data.success) {
+              router.push(`/result?bookingId=${data.data.id}&experience=${experience.title}&date=${date}&time=${time}`)
+            } else {
+              setError(data.error || "Booking failed")
+            }
+          } catch (e: any) {
+            setError(e?.message || "Payment failed")
+          } finally {
+            setLoading(false)
+          }
+        },
+        modal: {
+          ondismiss: () => {
+            setLoading(false)
+          },
+        },
+      })
+      rzp.open()
+    } catch (e: any) {
+      setError(e?.message || "Failed to complete payment")
       setLoading(false)
     }
   }
