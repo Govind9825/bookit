@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation"
 import Header from "@/components/header"
 
 interface Experience {
-  id: number
+  id: string | number
   title: string
   price: number
 }
@@ -14,7 +14,7 @@ export default function CheckoutPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
 
-  const experienceId = Number.parseInt(searchParams.get("experienceId") || "1")
+  const experienceId = (searchParams.get("experienceId") || "1")
   const date = searchParams.get("date") || ""
   const time = searchParams.get("time") || ""
   const quantity = Number.parseInt(searchParams.get("quantity") || "1")

@@ -4,7 +4,7 @@ export interface IBooking {
   userId: mongoose.Types.ObjectId;
   userName: string;
   userEmail: string;
-  experienceId: number;
+  experienceId: mongoose.Types.ObjectId | string;
   experienceTitle: string;
   date: string;
   time: string;
@@ -23,7 +23,7 @@ const BookingSchema = new Schema<IBooking>(
     userId: { type: Schema.Types.ObjectId, required: true, index: true },
     userName: { type: String, required: true },
     userEmail: { type: String, required: true, index: true },
-    experienceId: { type: Number, required: true },
+    experienceId: { type: Schema.Types.ObjectId, required: true },
     experienceTitle: { type: String, required: true },
     date: { type: String, required: true },
     time: { type: String, required: true },
@@ -37,6 +37,11 @@ const BookingSchema = new Schema<IBooking>(
   { timestamps: true }
 );
 
-export const Booking = models.Booking || model<IBooking>("Booking", BookingSchema);
+// In dev with hot reload, an older compiled model might have a different schema.
+// To avoid "Cast to Number" issues from an outdated model, drop it before redefining.
+if (models.Booking) {
+  delete (models as any).Booking;
+}
+export const Booking = model<IBooking>("Booking", BookingSchema);
 
 

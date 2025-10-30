@@ -1,7 +1,8 @@
-import { checkSlotAvailability, bookSlot, getExperienceById } from "@/lib/db"
 import { connectToDatabase } from "@/lib/mongodb"
 import { Booking } from "@/models/Booking"
 import { User } from "@/models/User"
+import { Experience } from "@/models/Experience"
+import mongoose from "mongoose"
 import jwt from "jsonwebtoken"
 
 export const runtime = "nodejs"
@@ -29,24 +30,29 @@ export async function POST(request: Request) {
       return Response.json({ success: false, error: "Missing required fields" }, { status: 400 })
     }
 
-    // Check if experience exists
-    const experience = getExperienceById(experienceId)
-    if (!experience) {
+    await connectToDatabase()
+
+    // Resolve experience
+    let experienceDoc: any = null
+    if (mongoose.Types.ObjectId.isValid(String(experienceId))) {
+      experienceDoc = await Experience.findById(experienceId).lean()
+    }
+    if (!experienceDoc) {
       return Response.json({ success: false, error: "Experience not found" }, { status: 404 })
     }
 
-    // Check slot availability
-    if (!checkSlotAvailability(experienceId, date, time, quantity)) {
+    // Atomically decrement slot availability if sufficient
+    const slotUpdate = await Experience.updateOne(
+      {
+        _id: experienceDoc._id,
+        slots: { $elemMatch: { date, time, available: { $gte: quantity } } },
+      },
+      { $inc: { "slots.$[elem].available": -quantity } },
+      { arrayFilters: [{ "elem.date": date, "elem.time": time }] },
+    )
+    if (slotUpdate.modifiedCount === 0) {
       return Response.json({ success: false, error: "Slot not available" }, { status: 400 })
     }
-
-    // Book the slot
-    const booked = bookSlot(experienceId, date, time, quantity)
-    if (!booked) {
-      return Response.json({ success: false, error: "Failed to book slot" }, { status: 400 })
-    }
-
-    await connectToDatabase()
     const user = await User.findById((payload as any).sub)
     if (!user) {
       return Response.json({ success: false, error: "Unauthorized" }, { status: 401 })
@@ -57,8 +63,8 @@ export async function POST(request: Request) {
       userId: user._id,
       userName: user.name,
       userEmail: user.email,
-      experienceId,
-      experienceTitle: experience.title,
+      experienceId: experienceDoc._id,
+      experienceTitle: experienceDoc.title,
       date,
       time,
       quantity,
@@ -83,9 +89,9 @@ export async function POST(request: Request) {
       total: booking.total,
       createdAt: booking.createdAt,
     } }, { status: 201 })
-  } catch {
-    console.error("Booking error")
-    return Response.json({ success: false, error: "Failed to create booking" }, { status: 500 })
+  } catch (e: any) {
+    console.error("Booking error", e?.message)
+    return Response.json({ success: false, error: e?.message || "Failed to create booking" }, { status: 500 })
   }
 }
 

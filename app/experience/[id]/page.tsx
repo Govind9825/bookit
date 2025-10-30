@@ -6,13 +6,13 @@ import Header from "@/components/header"
 import Image from "next/image"
 
 interface Experience {
-  id: number
+  id: string | number
   title: string
   description: string
   image: string
   price: number
   location: string
-  slots: Array<{ time: string; available: number }>
+  slots: Array<{ date: string; time: string; available: number }>
   dates: string[]
   about: string
 }
@@ -20,7 +20,7 @@ interface Experience {
 export default function ExperiencePage() {
   const params = useParams()
   const router = useRouter()
-  const id = Number.parseInt(params.id as string)
+  const idParam = params.id as string
 
   const [experience, setExperience] = useState<Experience | null>(null)
   const [loading, setLoading] = useState(true)
@@ -30,33 +30,28 @@ export default function ExperiencePage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
 
   useEffect(() => {
-    const fetchExperience = async () => {
+    ;(async () => {
       try {
-        const res = await fetch(`/api/experiences/${id}`)
+        const res = await fetch(`/api/experience-detail/${idParam}`, { cache: "no-store" })
         const data = await res.json()
         if (data.success) {
-          setExperience(data.data)
-          setSelectedDate(data.data.dates[0])
+          const exp = data.data.experience
+          setExperience({ ...(exp as any), id: (exp as any)._id ?? idParam })
+          setSelectedDate(exp.dates?.[0] ?? null)
+          setSelectedTime(null)
+          setIsLoggedIn(!!data.data.user)
         }
       } catch (error) {
-        console.error("Failed to fetch experience:", error)
+        console.error("Failed to fetch experience detail:", error)
       } finally {
         setLoading(false)
       }
-    }
-    const checkAuth = async () => {
-      try {
-        const res = await fetch("/api/auth/me", { cache: "no-store" })
-        const data = await res.json()
-        setIsLoggedIn(!!data?.user)
-      } catch {
-        setIsLoggedIn(false)
-      }
-    }
+    })()
+  }, [idParam])
 
-    fetchExperience()
-    checkAuth()
-  }, [id])
+  const timesForSelectedDate = selectedDate
+    ? (experience?.slots || []).filter((s) => s.date === selectedDate)
+    : []
 
   if (loading) return <div className="text-center py-8">Loading...</div>
   if (!experience) return <div className="text-center py-8">Experience not found</div>
@@ -125,7 +120,7 @@ export default function ExperiencePage() {
             <div className="mb-8">
               <h3 className="text-xl font-bold mb-4">Choose time</h3>
               <div className="flex gap-2 flex-wrap">
-                {experience.slots.map((slot) => (
+                {timesForSelectedDate.map((slot) => (
                   <button
                     key={slot.time}
                     onClick={() => slot.available > 0 && setSelectedTime(slot.time)}

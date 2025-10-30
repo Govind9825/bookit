@@ -2,15 +2,22 @@
 
 import Link from "next/link"
 import Image from "next/image"
-import type { Experience } from "@/data/experiences"
-
-interface ExperienceCardProps {
-  experience: Experience
+// Accept items from API (Mongo) or local seed
+type ExperienceLike = {
+  id?: number | string
+  _id?: string
+  title: string
+  description: string
+  image: string
+  price: number
+  location: string
 }
+
+interface ExperienceCardProps { experience: ExperienceLike }
 
 export default function ExperienceCard({ experience }: ExperienceCardProps) {
   return (
-    <Link href={`/experience/${experience.id}`}>
+    <Link href={`/experience/${(experience.id as any) ?? (experience._id as any)}`}> 
       <div className="rounded-lg overflow-hidden border border-border hover:shadow-md transition cursor-pointer bg-white">
         <div className="relative h-48 w-full">
           <Image src={experience.image || "/placeholder.svg"} alt={experience.title} fill className="object-cover" />

@@ -88,7 +88,7 @@ export function getExperiences(): Experience[] {
       id: 3,
       title: "Coffee Trail",
       description: "Curated small-group experience. Certified guide. Safety first with gear included.",
-      image: "https://images.unsplash.com/photo-1447933601403-0c6688bcf566?w=800&q=80",
+      image: "https://images.unsplash.com/photo-1472396961693-142e6e269027?w=800&q=80",
       price: 1299,
       location: "Coorg",
       about: "Explore coffee plantations and learn about coffee production.",
