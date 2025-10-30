@@ -134,7 +134,7 @@ export default function CheckoutPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
-            <div className="bg-white border border-border rounded-lg p-6">
+            <div className="bg-gray-100 border border-border rounded-lg p-6">
               {error && <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg text-sm">{error}</div>}
 
               <div className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -144,7 +144,7 @@ export default function CheckoutPage() {
                     type="text"
                     value={userName}
                     readOnly
-                    className="w-full px-4 py-2 border border-border rounded-lg bg-gray-100"
+                    className="w-full px-4 py-2 bg-gray-200 border border-border rounded-lg bg-gray-100"
                   />
                 </div>
                 <div>
@@ -153,7 +153,7 @@ export default function CheckoutPage() {
                     type="email"
                     value={userEmail}
                     readOnly
-                    className="w-full px-4 py-2 border border-border rounded-lg bg-gray-100"
+                    className="w-full bg-gray-200 px-4 py-2 border border-border rounded-lg bg-gray-100"
                   />
                 </div>
               </div>
@@ -166,7 +166,7 @@ export default function CheckoutPage() {
                     value={promoCode}
                     onChange={(e) => setPromoCode(e.target.value)}
                     placeholder="Enter promo code"
-                    className="flex-1 px-4 py-2 border border-border rounded-lg bg-gray-100"
+                    className="flex-1 bg-gray-200 px-4 py-2 border border-border rounded-lg bg-gray-100"
                   />
                   <button
                     onClick={handleApplyPromo}
@@ -193,7 +193,7 @@ export default function CheckoutPage() {
           </div>
 
           <div className="lg:col-span-1">
-            <div className="bg-white border border-border rounded-lg p-6 sticky top-8">
+            <div className="bg-gray-100 border border-border rounded-lg p-6 sticky top-8">
               <div className="space-y-3 mb-6 pb-6 border-b border-border">
                 <div className="flex justify-between">
                   <span className="text-muted">Experience</span>

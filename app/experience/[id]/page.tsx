@@ -89,7 +89,7 @@ export default function ExperiencePage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
-            <div className="relative h-96 w-full rounded-lg overflow-hidden border-4 border-accent mb-6">
+            <div className="relative h-96 w-full rounded-lg overflow-hidden  mb-6">
               <Image
                 src={experience.image || "/placeholder.svg"}
                 alt={experience.title}
@@ -98,7 +98,7 @@ export default function ExperiencePage() {
               />
             </div>
 
-            <div className="bg-primary p-4 rounded-lg mb-6">
+            <div className="p-4 rounded-lg mb-6">
               <h2 className="text-2xl font-bold text-secondary mb-2">{experience.title}</h2>
               <p className="text-secondary">{experience.description}</p>
             </div>
@@ -113,7 +113,7 @@ export default function ExperiencePage() {
                     className={`px-4 py-2 rounded-lg font-semibold transition ${
                       selectedDate === date
                         ? "bg-primary text-secondary"
-                        : "bg-gray-200 text-foreground hover:bg-gray-300"
+                        : "border-2 border-gray-200 text-foreground hover:bg-gray-300"
                     }`}
                   >
                     {date}
@@ -135,12 +135,18 @@ export default function ExperiencePage() {
                         ? "bg-accent text-white"
                         : slot.available === 0
                           ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                          : "bg-gray-200 text-foreground hover:bg-gray-300"
+                          : "border-2 border-gray-200 text-foreground hover:bg-gray-100"
                     }`}
                   >
                     {slot.time}
                     {slot.available === 0 && <span className="text-xs ml-1">Sold out</span>}
-                    {slot.available > 0 && <span className="text-xs ml-1 text-muted">{slot.available} left</span>}
+                    {slot.available > 0 && (
+                      <span
+                        className={`text-xs ml-1 ${slot.available >= 0 ? "text-orange-600" : "text-gray-600"}`}
+                      >
+                        {slot.available} left
+                      </span>
+                    )}
                   </button>
                 ))}
               </div>
@@ -153,7 +159,7 @@ export default function ExperiencePage() {
           </div>
 
           <div className="lg:col-span-1">
-            <div className="bg-white border border-border rounded-lg p-6 sticky top-8">
+            <div className="bg-gray-100 border border-border rounded-lg p-6 sticky top-8">
               <div className="mb-6">
                 <p className="text-sm text-muted mb-1">Starts at</p>
                 <p className="text-3xl font-bold text-foreground">₹{experience.price}</p>
