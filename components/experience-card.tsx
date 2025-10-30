@@ -16,11 +16,30 @@ type ExperienceLike = {
 interface ExperienceCardProps { experience: ExperienceLike }
 
 export default function ExperienceCard({ experience }: ExperienceCardProps) {
+  const src = experience.image || "/placeholder.svg"
+  const allowedHosts = [
+    "images.unsplash.com",
+    "unsplash.com",
+    "hebbkx1anhila5yf.public.blob.vercel-storage.com",
+    "public.blob.vercel-storage.com",
+  ]
+  let useNextImage = false
+  try {
+    const u = new URL(src)
+    useNextImage = allowedHosts.includes(u.hostname)
+  } catch {
+    useNextImage = false
+  }
   return (
     <Link href={`/experience/${(experience.id as any) ?? (experience._id as any)}`}> 
       <div className="rounded-lg overflow-hidden border border-border hover:shadow-md transition cursor-pointer bg-white">
         <div className="relative h-48 w-full">
-          <Image src={experience.image || "/placeholder.svg"} alt={experience.title} fill className="object-cover" />
+          {useNextImage ? (
+            <Image src={src} alt={experience.title} fill className="object-cover" />
+          ) : (
+            // Fallback for arbitrary hosts not in Next/Image allowlist
+            <img src={src} alt={experience.title} className="h-full w-full object-cover" />
+          )}
         </div>
         <div className="p-4 bg-gray-100">
           <div className="flex items-start justify-between gap-3 mb-2">

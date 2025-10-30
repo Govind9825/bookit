@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import Header from "@/components/header"
+import RouteLoader from "@/components/route-loader"
 
 interface Experience {
   id: string | number
@@ -60,7 +61,7 @@ export default function CheckoutPage() {
   }, [experienceId])
 
   if (!experience) {
-    return <div className="text-center py-8">Loading...</div>
+    return <RouteLoader force />
   }
 
   const subtotal = experience.price * quantity

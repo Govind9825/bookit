@@ -2,7 +2,9 @@
 import { useEffect, useRef, useState } from "react"
 import { usePathname } from "next/navigation"
 
-export default function RouteLoader() {
+type Props = { force?: boolean }
+
+export default function RouteLoader({ force = false }: Props) {
   const pathname = usePathname()
   const [visible, setVisible] = useState(false)
   const timerRef = useRef<NodeJS.Timeout | null>(null)
@@ -22,13 +24,13 @@ export default function RouteLoader() {
     }
   }, [pathname])
 
-  if (!visible) return null
+  if (!visible && !force) return null
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-white">
       <div className="flex items-center gap-3">
         <span className="inline-block h-8 w-8 rounded-full border-4 border-gray-300 border-t-gray-900 animate-spin" />
-        <span className="text-gray-900 font-medium">Loading...</span>
+        <span className="text-gray-900 font-medium"></span>
       </div>
     </div>
   )

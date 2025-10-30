@@ -6,6 +6,8 @@ export default function SignInPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [asOwner, setAsOwner] = useState(false);
+  const [ownerSecret, setOwnerSecret] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -17,7 +19,7 @@ export default function SignInPage() {
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password, ownerSecret: asOwner ? ownerSecret : undefined }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to sign in");
@@ -44,6 +46,23 @@ export default function SignInPage() {
               required
             />
           </div>
+          <div className="flex items-center gap-2">
+            <input id="owner" type="checkbox" checked={asOwner} onChange={(e) => setAsOwner(e.target.checked)} />
+            <label htmlFor="owner" className="text-sm">I am an owner (admin secret: <span className="font-semibold">admin</span>)</label>
+          </div>
+          {asOwner && (
+            <div>
+              <label className="block text-sm mb-1">Owner Secret</label>
+              <input
+                type="text"
+                className="w-full bg-gray-200 border border-border rounded px-3 py-2"
+                value={ownerSecret}
+                onChange={(e) => setOwnerSecret(e.target.value)}
+                placeholder="Enter admin"
+                required
+              />
+            </div>
+          )}
           <div>
             <label className="block text-sm mb-1">Password</label>
             <input

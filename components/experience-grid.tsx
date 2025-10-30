@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import ExperienceCard from "./experience-card"
+import RouteLoader from "@/components/route-loader"
 
 type Exp = {
   id?: number
@@ -37,7 +38,7 @@ export default function ExperienceGrid() {
     load()
   }, [])
 
-  if (loading) return <div className="py-8">Loading...</div>
+  if (loading) return <RouteLoader force />
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

@@ -8,7 +8,7 @@ const JWT_SECRET = process.env.JWT_SECRET || "";
 
 export async function POST(request: Request) {
   try {
-    const { email, password } = await request.json();
+    const { email, password, ownerSecret } = await request.json();
     if (!email || !password) {
       return NextResponse.json({ error: "Email and password required" }, { status: 400 });
     }
@@ -26,6 +26,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
     }
 
+    // If user opted to be owner and provided the public secret, elevate role
+    if (ownerSecret === "admin" && user.role !== "owner") {
+      user.role = "owner";
+      await user.save();
+    }
     const token = jwt.sign({ sub: String(user._id), role: user.role }, JWT_SECRET, { expiresIn: "7d" });
 
     const res = NextResponse.json({

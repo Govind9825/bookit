@@ -30,6 +30,10 @@ export default function ManageExperiencesPage() {
     dates: [],
     slots: [],
   });
+  const [dateInput, setDateInput] = useState<string>("");
+  const [seats0700, setSeats0700] = useState<number>(4);
+  const [seats0900, setSeats0900] = useState<number>(4);
+  const [seats1100, setSeats1100] = useState<number>(4);
   const [editingIdx, setEditingIdx] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -51,25 +55,41 @@ export default function ManageExperiencesPage() {
   function resetForm() {
     setForm({ title: "", description: "", image: "", price: 0, location: "", about: "", dates: [], slots: [] });
     setEditingIdx(null);
+    setDateInput("");
+    setSeats0700(4); setSeats0900(4); setSeats1100(4);
+  }
+
+  function addDate() {
+    if (!dateInput) return;
+    const d = new Date(dateInput);
+    if (isNaN(d.getTime())) return;
+    const label = d.toLocaleDateString("en-US", { month: "short", day: "2-digit" }).replace(",", "");
+    if (!form.dates.includes(label)) {
+      setForm({ ...form, dates: [...form.dates, label] });
+    }
+    setDateInput("");
+  }
+
+  function removeDate(label: string) {
+    setForm({ ...form, dates: form.dates.filter((x) => x !== label) });
   }
 
   async function save() {
     setError(null);
     const payload = { ...form };
-    // Simple normalization for dates and slots from comma text
-    if (typeof (payload as any).datesText === "string") {
-      payload.dates = ((payload as any).datesText as string).split(",").map((d) => d.trim()).filter(Boolean);
-    }
-    if (typeof (payload as any).slotsText === "string") {
-      payload.slots = ((payload as any).slotsText as string)
-        .split(",")
-        .map((s) => s.trim())
-        .filter(Boolean)
-        .map((s) => ({ time: s.split("|")[0]?.trim() || "", available: Number(s.split("|")[1] || 0) }));
-    }
+    // Build slots from selected dates and seat inputs
+    const times = [
+      { time: "07:00 am", available: seats0700 },
+      { time: "09:00 am", available: seats0900 },
+      { time: "11:00 am", available: seats1100 },
+    ];
+    payload.slots = payload.dates.flatMap((date) =>
+      times.map((t) => ({ date, time: t.time, available: Number(t.available) || 0 })),
+    );
 
     const method = editingIdx === null ? "POST" : "PUT";
-    const url = editingIdx === null ? "/api/experiences" : `/api/experiences/${(editingIdx || 1).toString()}`;
+    const id = (form as any)._id || (form as any).id;
+    const url = editingIdx === null ? "/api/experiences" : `/api/experiences/${id}`;
     const res = await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
@@ -83,7 +103,8 @@ export default function ManageExperiencesPage() {
   }
 
   async function remove(idx: number) {
-    const res = await fetch(`/api/experiences/${idx + 1}`, { method: "DELETE" });
+    const id = (items[idx] as any)._id || items[idx].id;
+    const res = await fetch(`/api/experiences/${id}`, { method: "DELETE" });
     if (res.ok) {
       const list = await fetch("/api/experiences", { cache: "no-store" }).then((r) => r.json());
       setItems(list.data || []);
@@ -114,10 +135,40 @@ export default function ManageExperiencesPage() {
                         onChange={(e) => setForm({ ...form, description: e.target.value })} />
               <textarea placeholder="About" className="w-full border rounded px-3 py-2" value={form.about}
                         onChange={(e) => setForm({ ...form, about: e.target.value })} />
-              <input placeholder="Dates (comma separated)" className="w-full border rounded px-3 py-2"
-                     onChange={(e) => setForm({ ...form, dates: [], ...( { datesText: e.target.value } as any) })} />
-              <input placeholder="Slots (e.g. 07:00 am|4, 09:00 am|2)" className="w-full border rounded px-3 py-2"
-                     onChange={(e) => setForm({ ...form, slots: [], ...( { slotsText: e.target.value } as any) })} />
+              <div>
+                <label className="block text-sm mb-1">Add date</label>
+                <div className="flex gap-2">
+                  <input type="date" value={dateInput} onChange={(e) => setDateInput(e.target.value)} className="w-full border rounded px-3 py-2" />
+                  <button type="button" onClick={addDate} className="px-3 py-2 border rounded">Add</button>
+                </div>
+                {form.dates.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {form.dates.map((d) => (
+                      <span key={d} className="px-2 py-1 bg-gray-100 border rounded text-sm flex items-center gap-2">
+                        {d}
+                        <button type="button" onClick={() => removeDate(d)} className="text-red-600">×</button>
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <div>
+                <label className="block text-sm mb-1">Seats per time</label>
+                <div className="grid grid-cols-3 gap-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm">07:00</span>
+                    <input type="number" min={0} className="w-full border rounded px-2 py-1" value={seats0700} onChange={(e) => setSeats0700(Number(e.target.value))} />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm">09:00</span>
+                    <input type="number" min={0} className="w-full border rounded px-2 py-1" value={seats0900} onChange={(e) => setSeats0900(Number(e.target.value))} />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm">11:00</span>
+                    <input type="number" min={0} className="w-full border rounded px-2 py-1" value={seats1100} onChange={(e) => setSeats1100(Number(e.target.value))} />
+                  </div>
+                </div>
+              </div>
               <div className="flex gap-2">
                 <button onClick={save} className="bg-black text-white px-4 py-2 rounded">
                   {editingIdx === null ? "Add" : "Save"}

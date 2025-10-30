@@ -62,6 +62,9 @@ export default function Header() {
               <Link href="/my-bookings" className="px-4 py-2 border rounded hover:bg-gray-50">
                 My bookings
               </Link>
+              {me.role === "owner" && (
+                <Link href="/manage-experiences" className="px-4 py-2 border rounded hover:bg-gray-50">Manage</Link>
+              )}
               <span className="text-sm">Hi, {me.name}</span>
               <button
                 onClick={onLogout}

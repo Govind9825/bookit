@@ -70,3 +70,32 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     return Response.json({ success: false, error: "Failed to fetch experience" }, { status: 500 })
   }
 }
+
+export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  try {
+    const { id } = await params
+    await connectToDatabase()
+    const payload = await request.json()
+    const updated = await Experience.findByIdAndUpdate(id, { $set: payload }, { new: true })
+    if (!updated) return Response.json({ success: false, error: "Experience not found" }, { status: 404 })
+    return Response.json({ success: true, data: updated })
+  } catch (e) {
+    return Response.json({ success: false, error: "Failed to update" }, { status: 500 })
+  }
+}
+
+export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  try {
+    const { id } = await params
+    await connectToDatabase()
+    const exp = await Experience.findById(id)
+    if (!exp) return Response.json({ success: false, error: "Experience not found" }, { status: 404 })
+    // mark associated bookings as cancelled
+    const { Booking } = await import("@/models/Booking")
+    await Booking.updateMany({ experienceId: exp._id }, { $set: { status: "cancelled" } })
+    await Experience.deleteOne({ _id: exp._id })
+    return Response.json({ success: true })
+  } catch (e) {
+    return Response.json({ success: false, error: "Failed to delete" }, { status: 500 })
+  }
+}

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { useParams, useRouter } from "next/navigation"
 import Header from "@/components/header"
+import RouteLoader from "@/components/route-loader"
 import Image from "next/image"
 
 interface Experience {
@@ -53,8 +54,23 @@ export default function ExperiencePage() {
     ? (experience?.slots || []).filter((s) => s.date === selectedDate)
     : []
 
-  if (loading) return <div className="text-center py-8">Loading...</div>
+  if (loading) return <RouteLoader force />
   if (!experience) return <div className="text-center py-8">Experience not found</div>
+
+  const imageSrc = experience.image || "/placeholder.svg"
+  const allowedHosts = [
+    "images.unsplash.com",
+    "unsplash.com",
+    "hebbkx1anhila5yf.public.blob.vercel-storage.com",
+    "public.blob.vercel-storage.com",
+  ]
+  let useNextImage = false
+  try {
+    const u = new URL(imageSrc as string)
+    useNextImage = allowedHosts.includes(u.hostname)
+  } catch {
+    useNextImage = false
+  }
 
   const handleBooking = () => {
     if (!isLoggedIn) {
@@ -85,12 +101,11 @@ export default function ExperiencePage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
             <div className="relative h-96 w-full rounded-lg overflow-hidden  mb-6">
-              <Image
-                src={experience.image || "/placeholder.svg"}
-                alt={experience.title}
-                fill
-                className="object-cover"
-              />
+              {useNextImage ? (
+                <Image src={imageSrc} alt={experience.title} fill className="object-cover" />
+              ) : (
+                <img src={imageSrc} alt={experience.title} className="h-full w-full object-cover" />
+              )}
             </div>
 
             <div className="p-4 rounded-lg mb-6">
