@@ -73,6 +73,7 @@ export async function POST(request: Request) {
       discount,
       total: subtotal + taxes - discount,
       ref,
+      status: "confirmed",
     })
 
     return Response.json({ success: true, data: {
@@ -87,6 +88,7 @@ export async function POST(request: Request) {
       taxes: booking.taxes,
       discount: booking.discount,
       total: booking.total,
+      status: booking.status,
       createdAt: booking.createdAt,
     } }, { status: 201 })
   } catch (e: any) {
@@ -123,6 +125,7 @@ export async function GET(request: Request) {
       taxes: b.taxes,
       discount: b.discount,
       total: b.total,
+      status: b.status,
       createdAt: b.createdAt,
     })) })
   } catch {

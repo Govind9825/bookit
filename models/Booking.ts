@@ -14,6 +14,7 @@ export interface IBooking {
   discount: number;
   total: number;
   ref: string;
+  status: "confirmed" | "cancelled";
   createdAt: Date;
   updatedAt: Date;
 }
@@ -33,6 +34,7 @@ const BookingSchema = new Schema<IBooking>(
     discount: { type: Number, required: true },
     total: { type: Number, required: true },
     ref: { type: String, required: true, unique: true },
+    status: { type: String, enum: ["confirmed", "cancelled"], default: "confirmed", index: true },
   },
   { timestamps: true }
 );
