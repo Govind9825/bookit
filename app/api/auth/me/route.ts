@@ -17,7 +17,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ user: null });
     }
     await connectToDatabase();
-    const user = await User.findById(payload.sub).lean();
+    const user: any = await User.findById(payload.sub).lean();
     if (!user) return NextResponse.json({ user: null });
     return NextResponse.json({ user: { id: String(user._id), name: user.name, email: user.email, role: user.role } });
   } catch {
