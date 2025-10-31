@@ -186,7 +186,7 @@ export default function CheckoutPage() {
   return (
     <main className="min-h-screen bg-background">
       <Header />
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-6 md:py-8">
         <button
           onClick={() => router.back()}
           className="flex items-center gap-2 text-secondary mb-6 hover:text-primary"
@@ -195,9 +195,9 @@ export default function CheckoutPage() {
           <span>Checkout</span>
         </button>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
           <div className="lg:col-span-2">
-            <div className="bg-gray-100 border border-border rounded-lg p-6">
+            <div className="bg-gray-100 border border-border rounded-lg p-4 md:p-6">
               {error && <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg text-sm">{error}</div>}
 
               <div className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -207,7 +207,7 @@ export default function CheckoutPage() {
                     type="text"
                     value={userName}
                     readOnly
-                    className="w-full px-4 py-2 bg-gray-200 border border-border rounded-lg bg-gray-100"
+                    className="w-full px-4 py-2 bg-gray-200 border border-border rounded-lg"
                   />
                 </div>
                 <div>
@@ -216,24 +216,24 @@ export default function CheckoutPage() {
                     type="email"
                     value={userEmail}
                     readOnly
-                    className="w-full bg-gray-200 px-4 py-2 border border-border rounded-lg bg-gray-100"
+                    className="w-full bg-gray-200 px-4 py-2 border border-border rounded-lg"
                   />
                 </div>
               </div>
 
               <div className="mb-6">
                 <label className="block text-sm font-semibold mb-2">Promo code</label>
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-2">
                   <input
                     type="text"
                     value={promoCode}
                     onChange={(e) => setPromoCode(e.target.value)}
                     placeholder="Enter promo code"
-                    className="flex-1 bg-gray-200 px-4 py-2 border border-border rounded-lg bg-gray-100"
+                    className="flex-1 bg-gray-200 px-4 py-2 border border-border rounded-lg"
                   />
                   <button
                     onClick={handleApplyPromo}
-                    className="bg-secondary text-white px-6 py-2 rounded-lg font-semibold hover:bg-opacity-90 transition"
+                    className="sm:w-auto w-full bg-secondary text-white px-6 py-2 rounded-lg font-semibold hover:bg-opacity-90 transition"
                   >
                     Apply
                   </button>
@@ -256,7 +256,7 @@ export default function CheckoutPage() {
           </div>
 
           <div className="lg:col-span-1">
-            <div className="bg-gray-100 border border-border rounded-lg p-6 sticky top-8">
+            <div className="bg-gray-100 border border-border rounded-lg p-4 md:p-6 lg:sticky lg:top-8 mt-6 lg:mt-0">
               <div className="space-y-3 mb-6 pb-6 border-b border-border">
                 <div className="flex justify-between">
                   <span className="text-muted">Experience</span>

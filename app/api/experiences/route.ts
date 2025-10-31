@@ -1,10 +1,21 @@
 import { connectToDatabase } from "@/lib/mongodb"
 import { Experience } from "@/models/Experience"
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     await connectToDatabase()
-    const experiences = await Experience.find().sort({ createdAt: -1 }).lean()
+    const { searchParams } = new URL(request.url)
+    const q = (searchParams.get("q") || "").trim()
+    const where = q
+      ? {
+          $or: [
+            { title: { $regex: q, $options: "i" } },
+            { description: { $regex: q, $options: "i" } },
+            { location: { $regex: q, $options: "i" } },
+          ],
+        }
+      : {}
+    const experiences = await Experience.find(where).sort({ createdAt: -1 }).lean()
     return Response.json({ success: true, data: experiences })
   } catch {
     return Response.json({ success: false, error: "Failed to fetch experiences" }, { status: 500 })

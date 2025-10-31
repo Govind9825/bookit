@@ -54,6 +54,16 @@ export default function ExperiencePage() {
     ? (experience?.slots || []).filter((s) => s.date === selectedDate)
     : []
 
+  const selectedSlot = selectedTime
+    ? timesForSelectedDate.find((s) => s.time === selectedTime) || null
+    : null
+
+  useEffect(() => {
+    if (selectedSlot && quantity > selectedSlot.available) {
+      setQuantity(Math.max(1, selectedSlot.available))
+    }
+  }, [selectedSlot?.available, selectedTime])
+
   if (loading) return <RouteLoader force />
   if (!experience) return <div className="text-center py-8">Experience not found</div>
 
@@ -186,12 +196,19 @@ export default function ExperiencePage() {
                   </button>
                   <span className="font-bold">{quantity}</span>
                   <button
-                    onClick={() => setQuantity(quantity + 1)}
+                    onClick={() => {
+                      const maxAvail = selectedSlot ? selectedSlot.available : 1
+                      setQuantity(Math.min(quantity + 1, Math.max(1, maxAvail)))
+                    }}
+                    disabled={!selectedSlot || quantity >= (selectedSlot?.available || 1)}
                     className="w-8 h-8 border border-border rounded hover:bg-gray-100"
                   >
                     +
                   </button>
                 </div>
+                <p className="text-xs text-muted mt-1">
+                  {selectedSlot ? `${selectedSlot.available} available for this time` : "Select a time to see availability"}
+                </p>
               </div>
 
               <div className="space-y-2 mb-4 pb-4 border-b border-border text-sm">
